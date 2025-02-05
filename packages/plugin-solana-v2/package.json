@@ -22,7 +22,7 @@
         "@biomejs/biome": "1.5.3",
         "@types/node": "^22.8.7",
         "tsup": "^8.3.5",
-        "vitest": "2.1.9",
+        "vitest": "2.1.9"
     },
     "scripts": {
         "build": "tsup --format esm --dts",
