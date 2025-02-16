@@ -22,7 +22,8 @@
     "docker": "pnpm docker:build && pnpm docker:run && pnpm docker:bash",
     "test": "bash ./scripts/test.sh",
     "smokeTests": "bash ./scripts/smokeTests.sh",
-    "integrationTests": "bash ./scripts/integrationTests.sh"
+    "integrationTests": "bash ./scripts/integrationTests.sh",
+    "cib": "bash ./scripts/cib.sh"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
@@ -58,7 +59,8 @@
       "@ai-sdk/provider-utils": "2.1.6",
       "cookie": "0.7.0",
       "bs58": "5.0.0",
-      "@coral-xyz/anchor": "0.28.0"
+      "@coral-xyz/anchor": "0.28.0",
+      "zod": "3.24.1"
     },
     "patchedDependencies": {
       "@solana-developers/helpers": "patches/@solana-developers__helpers.patch"
@@ -71,16 +73,21 @@
     "@0glabs/0g-ts-sdk": "0.2.1",
     "@coinbase/coinbase-sdk": "0.10.0",
     "@deepgram/sdk": "^3.9.0",
+    "@elizaos/plugin-bootstrap": "0.25.6-alpha.1",
+    "@elizaos/plugin-news": "0.25.6-alpha.1",
     "@injectivelabs/sdk-ts": "^1.14.33",
     "@vitest/eslint-plugin": "1.0.1",
+    "agent-twitter-client": "0.0.18",
     "amqplib": "0.10.5",
     "bs58": "4.0.0",
     "csv-parse": "5.6.0",
+    "discord.js": "14.16.3",
     "langdetect": "^0.2.1",
     "ollama-ai-provider": "0.16.1",
     "optional": "0.1.4",
     "pnpm": "9.15.0",
-    "sharp": "0.33.5"
+    "sharp": "0.33.5",
+    "zod": "3.24.1"
   },
   "packageManager": "pnpm@9.15.0",
   "workspaces": [

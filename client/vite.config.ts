@@ -35,5 +35,12 @@ export default defineConfig(({ mode }) => {
                 "@": "/src",
             },
         },
+        server: {
+            host: "0.0.0.0",       // Allow external access
+            port: 5173,
+            strictPort: true,
+            cors: true,
+            allowedHosts: true,   // Allow all hosts (including ngrok URLs)
+        },
     };
 });

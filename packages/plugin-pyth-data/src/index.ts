@@ -28,8 +28,8 @@ const actions = [
 console.log('\n' + chalk.cyan('┌────────────────────────────────────────┐'));
 console.log(chalk.cyan('│') + chalk.yellow.bold('          PYTH DATA PLUGIN             ') + chalk.cyan(' │'));
 console.log(chalk.cyan('├────────────────────────────────────────┤'));
-console.log(chalk.cyan('│') + chalk.white('  Initializing Pyth Data Services...    ') + chalk.cyan('│'));
-console.log(chalk.cyan('│') + chalk.white('  Version: 1.0.0                        ') + chalk.cyan('│'));
+console.log(chalk.cyan('│') + chalk.red('  Initializing Pyth Data Services...    ') + chalk.cyan('│'));
+console.log(chalk.cyan('│') + chalk.red('  Version: 1.0.0                        ') + chalk.cyan('│'));
 console.log(chalk.cyan('└────────────────────────────────────────┘'));
 
 // Stop the loader

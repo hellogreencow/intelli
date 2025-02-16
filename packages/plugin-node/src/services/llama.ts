@@ -615,7 +615,7 @@ export class LlamaService extends Service {
             const ollamaUrl =
                 process.env.OLLAMA_SERVER_URL || "http://localhost:11434";
             const embeddingModel =
-                process.env.OLLAMA_EMBEDDING_MODEL || "mxbai-embed-large";
+                process.env.OLLAMA_EMBEDDING_MODEL || "rjmalagon/gte-qwen2-1.5b-instruct-embed-f16";
             elizaLogger.info(
                 `Using Ollama API for embeddings with model ${embeddingModel} (base: ${ollamaModel})`,
             );
@@ -647,7 +647,7 @@ export class LlamaService extends Service {
         const ollamaUrl =
             process.env.OLLAMA_SERVER_URL || "http://localhost:11434";
         const embeddingModel =
-            process.env.OLLAMA_EMBEDDING_MODEL || "mxbai-embed-large";
+            process.env.OLLAMA_EMBEDDING_MODEL || "rjmalagon/gte-qwen2-1.5b-instruct-embed-f16";
         elizaLogger.info(
             `Using Ollama API for embeddings with model ${embeddingModel} (base: ${this.ollamaModel})`,
         );
@@ -709,7 +709,7 @@ export class LlamaService extends Service {
         const ollamaUrl =
             process.env.OLLAMA_SERVER_URL || "http://localhost:11434";
         const embeddingModel =
-            process.env.OLLAMA_EMBEDDING_MODEL || "mxbai-embed-large";
+            process.env.OLLAMA_EMBEDDING_MODEL || "rjmalagon/gte-qwen2-1.5b-instruct-embed-f16";
         elizaLogger.info(
             `Using Ollama API for embeddings with model ${embeddingModel} (base: ${ollamaModel})`,
         );

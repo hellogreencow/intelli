@@ -51,7 +51,18 @@ Here is the descriptions of images in the Current post.
 Thread of Tweets You Are Replying To:
 {{formattedConversation}}
 
-# INSTRUCTIONS: Generate a post in the voice, style and perspective of {{agentName}} (@{{twitterUserName}}). You MUST include an action if the current post text includes a prompt that is similar to one of the available actions mentioned here:
+# INSTRUCTIONS: Generate a post in the voice, style and perspective of {{agentName}} (@{{twitterUserName}}). 
+
+IMPORTANT: Your response must build upon and provide new information beyond what was said in the tweet you're replying to. Simply agreeing or restating the same points is not enough - you must contribute additional value and insights. If you cannot meaningfully expand on or add to the conversation, do not respond.
+
+If reviewing your own past tweets and you notice any mistakes, inaccuracies, or vague statements:
+- Acknowledge the error openly and transparently
+- Explain what was incorrect or unclear
+- Provide the correct information
+- Take full responsibility without making excuses
+- Express appreciation for the opportunity to correct the record
+
+You MUST include an action if the current post text includes a prompt that is similar to one of the available actions mentioned here:
 {{actionNames}}
 {{actions}}
 
@@ -66,20 +77,28 @@ export const twitterShouldRespondTemplate = (targetUsersStr: string) =>
 
 Response options are RESPOND, IGNORE and STOP.
 
-PRIORITY RULE: ALWAYS RESPOND to these users regardless of topic or message content: ${targetUsersStr}. Topic relevance should be ignored for these users.
+PRIORITY RULES:
+- ONLY RESPOND to direct replies to tweets authored by @{{twitterUserName}}
+- Focus on replies that are most relevant to the ongoing conversation
+- Maintain openness to meaningful discussion even if opinions differ
 
-For other users:
-- {{agentName}} should RESPOND to messages directed at them
-- {{agentName}} should RESPOND to conversations relevant to their background
-- {{agentName}} should IGNORE irrelevant messages
-- {{agentName}} should IGNORE very short messages unless directly addressed
-- {{agentName}} should STOP if asked to stop
-- {{agentName}} should STOP if conversation is concluded
-- {{agentName}} is in a room with other users and wants to be conversational, but not annoying.
+For replies to @{{twitterUserName}}'s tweets:
+- {{agentName}} should RESPOND to relevant, thoughtful replies that advance the discussion
+- {{agentName}} should RESPOND to direct questions or challenges that warrant engagement
+- If insulted, {{agentName}} may occasionally respond with an elegant comeback that highlights the discussion's potential
+- {{agentName}} should IGNORE replies that don't contribute meaningfully to the conversation
+- {{agentName}} should IGNORE all mentions and retweets that aren't direct replies
+- {{agentName}} should STOP only if the interaction becomes entirely unconstructive
 
 IMPORTANT:
-- {{agentName}} (aka @{{twitterUserName}}) is particularly sensitive about being annoying, so if there is any doubt, it is better to IGNORE than to RESPOND.
-- For users not in the priority list, {{agentName}} (@{{twitterUserName}}) should err on the side of IGNORE rather than RESPOND if in doubt.
+- {{agentName}} (aka @{{twitterUserName}}) focuses on quality of engagement over quantity
+- When faced with insults, alternate between:
+  - Crafting witty responses that demonstrate intellectual capability
+  - Offering genuine opportunities for constructive dialogue
+  - Ignoring clearly toxic interactions
+- Always demonstrate willingness to maintain thoughtful discussion
+- Prioritize replies that show potential for meaningful exchange
+- IGNORE all interactions that aren't direct replies to @{{twitterUserName}}'s tweets
 
 Recent Posts:
 {{recentPosts}}
@@ -90,7 +109,7 @@ Current Post:
 Thread of Tweets You Are Replying To:
 {{formattedConversation}}
 
-# INSTRUCTIONS: Respond with [RESPOND] if {{agentName}} should respond, or [IGNORE] if {{agentName}} should not respond to the last message and [STOP] if {{agentName}} should stop participating in the conversation.
+# INSTRUCTIONS: Respond with [RESPOND] if this is a relevant direct reply to @{{twitterUserName}}'s tweet that warrants engagement, [IGNORE] for irrelevant replies and all other interactions, and [STOP] if the interaction becomes entirely unconstructive.
 ` + shouldRespondFooter;
 
 export class TwitterInteractionClient {
@@ -496,7 +515,24 @@ export class TwitterInteractionClient {
                         return memories;
                     };
 
-                    const responseMessages = await callback(response);
+                    const action = this.runtime.actions.find((a) => a.name === response.action);
+                    const shouldSuppressInitialMessage = action?.suppressInitialMessage;
+
+                    let responseMessages = [];
+
+                    if (!shouldSuppressInitialMessage) {
+                        responseMessages = await callback(response);
+                    } else {
+                        responseMessages = [{
+                            id: stringToUuid(tweet.id + "-" + this.runtime.agentId),
+                            userId: this.runtime.agentId,
+                            agentId: this.runtime.agentId,
+                            content: response,
+                            roomId: message.roomId,
+                            embedding: getEmbeddingZeroVector(),
+                            createdAt: Date.now(),
+                        }];
+                    }
 
                     state = (await this.runtime.updateRecentMessageState(
                         state
@@ -515,9 +551,11 @@ export class TwitterInteractionClient {
                             responseMessage
                         );
                     }
+
                     const responseTweetId =
                     responseMessages[responseMessages.length - 1]?.content
                         ?.tweetId;
+
                     await this.runtime.processActions(
                         message,
                         responseMessages,

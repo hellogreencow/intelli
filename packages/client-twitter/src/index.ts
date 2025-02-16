@@ -31,10 +31,10 @@ class TwitterManager {
         // Optional search logic (enabled if TWITTER_SEARCH_ENABLE is true)
         if (twitterConfig.TWITTER_SEARCH_ENABLE) {
             elizaLogger.warn("Twitter/X client running in a mode that:");
-            elizaLogger.warn("1. violates consent of random users");
-            elizaLogger.warn("2. burns your rate limit");
-            elizaLogger.warn("3. can get your account banned");
-            elizaLogger.warn("use at your own risk");
+            elizaLogger.warn("1. violates (WHO) consent of random users");
+            elizaLogger.warn("2. burns your (GIVES) rate limit");
+            elizaLogger.warn("3. can get (A) your account banned");
+            elizaLogger.warn("use at (SHIT) your own risk");
             this.search = new TwitterSearchClient(this.client, runtime);
         }
 

@@ -24,7 +24,8 @@
 		"coinbase-advanced-sdk": "file:../../packages/plugin-coinbase/advanced-sdk-ts",
 		"coinbase-api": "1.0.5",
 		"jsonwebtoken": "^9.0.2",
-		"node-fetch": "^2.6.1"
+		"node-fetch": "^2.6.1",
+		"zod": "3.24.1"
 	},
 	"devDependencies": {
 		"@types/node": "^20.0.0",

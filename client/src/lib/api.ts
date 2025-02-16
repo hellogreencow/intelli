@@ -1,6 +1,17 @@
 import type { UUID, Character } from "@elizaos/core";
 
-const BASE_URL = `http://localhost:${import.meta.env.VITE_SERVER_PORT}`;
+const BASE_URL = window.location.hostname.includes('ngrok-free.app')
+    ? `https://${window.location.hostname.replace('378d', '19d3')}`  // Use the ngrok URL
+    : `http://localhost:${import.meta.env.VITE_SERVER_PORT}`; // Local development
+
+export const getImageUrl = (imageUrl: string) => {
+    if (imageUrl.startsWith('http')) {
+        return imageUrl;
+    }
+    return `${BASE_URL}/images/${imageUrl}`;
+};
+
+console.log('API Base URL: ', BASE_URL);
 
 const fetcher = async ({
     url,

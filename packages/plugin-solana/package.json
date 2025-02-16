@@ -19,7 +19,7 @@
 		"dist"
 	],
 	"dependencies": {
-		"@coral-xyz/anchor": "0.30.1",
+		"@coral-xyz/anchor": "0.28.0",
 		"@elizaos/core": "workspace:*",
 		"@elizaos/plugin-tee": "workspace:*",
 		"@elizaos/plugin-trustdb": "workspace:*",

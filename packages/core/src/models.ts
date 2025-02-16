@@ -16,27 +16,27 @@ export const models: Models = {
                 name: settings.SMALL_OPENAI_MODEL || "gpt-4o-mini",
                 stop: [],
                 maxInputTokens: 128000,
-                maxOutputTokens: 8192,
-                frequency_penalty: 0.0,
-                presence_penalty: 0.0,
+                maxOutputTokens: 500,
+                frequency_penalty: 0.6,
+                presence_penalty: 0.2,
                 temperature: 0.6,
             },
             [ModelClass.MEDIUM]: {
-                name: settings.MEDIUM_OPENAI_MODEL || "gpt-4o",
+                name: settings.MEDIUM_OPENAI_MODEL || "gpt-4o-mini",
                 stop: [],
                 maxInputTokens: 128000,
-                maxOutputTokens: 8192,
-                frequency_penalty: 0.0,
-                presence_penalty: 0.0,
+                maxOutputTokens: 500,
+                frequency_penalty: 0.6,
+                presence_penalty: 0.2,
                 temperature: 0.6,
             },
             [ModelClass.LARGE]: {
-                name: settings.LARGE_OPENAI_MODEL || "gpt-4o",
+                name: settings.LARGE_OPENAI_MODEL || "gpt-4o-mini",
                 stop: [],
                 maxInputTokens: 128000,
-                maxOutputTokens: 8192,
-                frequency_penalty: 0.0,
-                presence_penalty: 0.0,
+                maxOutputTokens: 500,
+                frequency_penalty: 0.5,
+                presence_penalty: 0.2,
                 temperature: 0.6,
             },
             [ModelClass.EMBEDDING]: {
@@ -504,37 +504,37 @@ export const models: Models = {
                 name:
                     settings.SMALL_OPENROUTER_MODEL ||
                     settings.OPENROUTER_MODEL ||
-                    "nousresearch/hermes-3-llama-3.1-405b",
+                    "deepseek/deepseek-r1",
                 stop: [],
                 maxInputTokens: 128000,
                 maxOutputTokens: 8192,
-                frequency_penalty: 0.4,
+                frequency_penalty: 0.5,
                 presence_penalty: 0.4,
-                temperature: 0.7,
+                temperature: 0.5,
             },
             [ModelClass.MEDIUM]: {
                 name:
                     settings.MEDIUM_OPENROUTER_MODEL ||
                     settings.OPENROUTER_MODEL ||
-                    "nousresearch/hermes-3-llama-3.1-405b",
+                    "deepseek/deepseek-r1",
                 stop: [],
                 maxInputTokens: 128000,
                 maxOutputTokens: 8192,
-                frequency_penalty: 0.4,
+                frequency_penalty: 0.5,
                 presence_penalty: 0.4,
-                temperature: 0.7,
+                temperature: 0.5,
             },
             [ModelClass.LARGE]: {
                 name:
                     settings.LARGE_OPENROUTER_MODEL ||
                     settings.OPENROUTER_MODEL ||
-                    "nousresearch/hermes-3-llama-3.1-405b",
+                    "deepseek/deepseek-r1",
                 stop: [],
                 maxInputTokens: 128000,
                 maxOutputTokens: 8192,
-                frequency_penalty: 0.4,
+                frequency_penalty: 0.5,
                 presence_penalty: 0.4,
-                temperature: 0.7,
+                temperature: 0.5,
             },
             [ModelClass.EMBEDDING]: {
                 name: "text-embedding-3-small",
@@ -548,43 +548,43 @@ export const models: Models = {
                 name:
                     settings.SMALL_OLLAMA_MODEL ||
                     settings.OLLAMA_MODEL ||
-                    "llama3.2",
+                    "qwen2.5:7b",
                 stop: [],
                 maxInputTokens: 128000,
                 maxOutputTokens: 8192,
-                frequency_penalty: 0.4,
+                frequency_penalty: 0.5,
                 presence_penalty: 0.4,
-                temperature: 0.7,
+                temperature: 0.5,
             },
             [ModelClass.MEDIUM]: {
                 name:
                     settings.MEDIUM_OLLAMA_MODEL ||
                     settings.OLLAMA_MODEL ||
-                    "hermes3",
+                    "qwen2.5:7b",
                 stop: [],
                 maxInputTokens: 128000,
                 maxOutputTokens: 8192,
-                frequency_penalty: 0.4,
+                frequency_penalty: 0.5,
                 presence_penalty: 0.4,
-                temperature: 0.7,
+                temperature: 0.5,
             },
 
             [ModelClass.LARGE]: {
                 name:
                     settings.LARGE_OLLAMA_MODEL ||
                     settings.OLLAMA_MODEL ||
-                    "hermes3:70b",
+                    "qwen2.5:7b",
                 stop: [],
                 maxInputTokens: 128000,
                 maxOutputTokens: 8192,
-                frequency_penalty: 0.4,
+                frequency_penalty: 0.5,
                 presence_penalty: 0.4,
-                temperature: 0.7,
+                temperature: 0.5,
             },
 
             [ModelClass.EMBEDDING]: {
-                name: settings.OLLAMA_EMBEDDING_MODEL || "mxbai-embed-large",
-                dimensions: 1024,
+                name: settings.OLLAMA_EMBEDDING_MODEL || "rjmalagon/gte-qwen2-1.5b-instruct-embed-f16",
+                dimensions: 1536,
             },
         },
     },

@@ -6,7 +6,7 @@ export const messageCompletionFooter = `\nResponse format should be formatted in
 { "user": "{{agentName}}", "text": "<string>", "action": "<string>" }
 \`\`\`
 
-The “action” field should be one of the options in [Available Actions] and the "text" field should be the response you want to send.
+The "action" field should be one of the options in [Available Actions] and the "text" field should be the response you want to send.
 `;
 
 export const shouldRespondFooter = `The available options are [RESPOND], [IGNORE], or [STOP]. Choose the most appropriate option.
@@ -130,57 +130,170 @@ export function parseJsonArrayFromText(text: string) {
 }
 
 /**
- * Parses a JSON object from a given text. The function looks for a JSON block wrapped in triple backticks
- * with `json` language identifier, and if not found, it searches for an object pattern within the text.
- * It then attempts to parse the JSON string into a JavaScript object. If parsing is successful and the result
- * is an object (but not an array), it returns the object; otherwise, it tries to parse an array if the result
- * is an array, or returns null if parsing is unsuccessful or the result is neither an object nor an array.
+ * Checks if a string looks like it might be valid JSON content by attempting a safe parse
+ * @param text - The text to validate
+ * @returns boolean indicating if the text is valid JSON
+ */
+function looksLikeJson(text: string): boolean {
+    const trimmed = text.trim();
+
+    // Must start with { or [
+    if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) {
+        return false;
+    }
+
+    // Must end with } or ]
+    if ((trimmed.startsWith('{') && !trimmed.endsWith('}')) ||
+        (trimmed.startsWith('[') && !trimmed.endsWith(']'))) {
+        return false;
+    }
+
+    // Try parsing safely using JSON.parse() to verify it's valid JSON
+    try {
+        JSON.parse(trimmed);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+/**
+ * Cleans a JSON-like response string by removing unnecessary markers, line breaks, and extra whitespace.
+ * This is useful for handling improperly formatted JSON responses from external sources.
  *
+ * @param response - The raw JSON-like string response to clean.
+ * @returns The cleaned string, ready for parsing or further processing.
+ */
+export function cleanJsonResponse(response: string): string {
+    if (!response) return '';
+    
+    // First remove any markdown code block markers with or without language identifier
+    let cleaned = response
+        .replace(/```(?:json)?\n/g, "") // Remove opening ```json or ``` markers
+        .replace(/\n```/g, "")          // Remove closing ``` markers
+        .replace(/`/g, "")              // Remove any remaining backticks
+        .trim();
+
+    // Only extract JSON content if we can find clear JSON boundaries
+    const firstBrace = cleaned.indexOf('{');
+    const firstBracket = cleaned.indexOf('[');
+    const lastBrace = cleaned.lastIndexOf('}');
+    const lastBracket = cleaned.lastIndexOf(']');
+    
+    let extracted = '';
+    // Determine if we have a valid JSON object or array structure
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        extracted = cleaned.slice(firstBrace, lastBrace + 1);
+    } else if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
+        extracted = cleaned.slice(firstBracket, lastBracket + 1);
+    }
+
+    // Only return if it's valid JSON
+    if (extracted && looksLikeJson(extracted)) {
+        return extracted;
+    }
+
+    return '';
+}
+
+/**
+ * Attempts to extract a valid JSON content from text, handling various formats and edge cases.
+ * @param text - The text potentially containing JSON.
+ * @returns The extracted JSON string or null if no valid JSON found.
+ */
+function extractJsonContent(text: string): { content: string; source: 'markdown' | 'raw' | 'fallback' } | null {
+    if (!text) return null;
+
+    // First try to find JSON within code blocks
+    const codeBlockMatch = text.match(jsonBlockPattern);
+    if (codeBlockMatch && codeBlockMatch[1].trim()) {
+        const content = codeBlockMatch[1].trim();
+        if (looksLikeJson(content)) {
+            return { content, source: 'markdown' };
+        }
+    }
+
+    // If no code block, try to extract clean JSON
+    const cleaned = cleanJsonResponse(text);
+    if (cleaned && looksLikeJson(cleaned)) {
+        return { content: cleaned, source: 'raw' };
+    }
+
+    // Only use fallback for text that has clear key-value structure
+    if (text.includes(":") && text.includes('"')) {
+        const fallbackContent = text.trim();
+        // Additional validation for key-value structure
+        const hasValidKeyValuePair = /"[^"]+":\s*"[^"]+"/.test(fallbackContent);
+        if (hasValidKeyValuePair) {
+            return { content: fallbackContent, source: 'fallback' };
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Parses a JSON object from a given text, with multiple fallback mechanisms.
  * @param text - The input text from which to extract and parse the JSON object.
  * @returns An object parsed from the JSON string if successful; otherwise, null or the result of parsing an array.
  */
 export function parseJSONObjectFromText(
     text: string
 ): Record<string, any> | null {
+    if (!text) return null;
+
     let jsonData = null;
-    const jsonBlockMatch = text.match(jsonBlockPattern);
+    const extracted = extractJsonContent(text);
 
-    if (jsonBlockMatch) {
-        const parsingText = normalizeJsonString(jsonBlockMatch[1]);
-        try {
-            jsonData = JSON.parse(parsingText);
-        } catch (e) {
-            console.error("Error parsing JSON:", e);
-            console.error("Text is not JSON", text);
-            return extractAttributes(text);
+    if (!extracted) {
+        // If text doesn't look like JSON, return null
+        if (!text.includes(":") || !text.includes('"')) {
+            return null;
         }
-    } else {
-        const objectPattern = /{[\s\S]*?}/;
-        const objectMatch = text.match(objectPattern);
 
-        if (objectMatch) {
-            const parsingText = normalizeJsonString(objectMatch[0]);
-            try {
-                jsonData = JSON.parse(parsingText);
-            } catch (e) {
-                console.error("Error parsing JSON:", e);
-                console.error("Text is not JSON", text);
-                return extractAttributes(text);
+        // Try attribute extraction only if the text has JSON-like key-value pairs
+        return extractAttributes(text);
+
+    }
+
+    // Try parsing from extracted content
+    try {
+        const parsingText = normalizeJsonString(extracted.content);
+        // Double-check that normalized content is valid JSON
+        if (looksLikeJson(parsingText)) {
+            jsonData = JSON.parse(parsingText);
+        }
+    } catch (e) {
+        console.error(`Error parsing JSON from ${extracted.source}:`, e);
+        console.debug('Failed content:', extracted.content.slice(0, 100) + '...');
+        
+        // Handle fallback cases
+        if (extracted.source === 'fallback') {
+            return extractAttributes(extracted.content);
+        } else if (extracted.source === 'markdown') {
+            // If markdown parsing failed, try raw cleanup
+            const rawExtracted = cleanJsonResponse(text);
+            if (rawExtracted && looksLikeJson(rawExtracted)) {
+                try {
+                    const rawParsed = normalizeJsonString(rawExtracted);
+                    jsonData = JSON.parse(rawParsed);
+                } catch {
+                    return extractAttributes(extracted.content);
+                }
             }
         }
     }
 
-    if (
-        typeof jsonData === "object" &&
-        jsonData !== null &&
-        !Array.isArray(jsonData)
-    ) {
-        return jsonData;
-    } else if (typeof jsonData === "object" && Array.isArray(jsonData)) {
-        return parseJsonArrayFromText(text);
-    } else {
-        return null;
+    if (jsonData && typeof jsonData === "object") {
+        if (!Array.isArray(jsonData)) {
+            return jsonData;
+        } else if (jsonData.length > 0) {
+            // Only return non-empty arrays
+            return jsonData;
+        }
     }
+
+    return null;
 }
 
 /**
@@ -193,11 +306,12 @@ export function extractAttributes(
     response: string,
     attributesToExtract?: string[]
 ): { [key: string]: string | undefined } {
+    response = response.trim();
     const attributes: { [key: string]: string | undefined } = {};
 
     if (!attributesToExtract || attributesToExtract.length === 0) {
         // Extract all attributes if no specific attributes are provided
-        const matches = response.matchAll(/"([^"]+)"\s*:\s*"([^"]*)"/g);
+        const matches = response.matchAll(/"([^"]+)"\s*:\s*"([^"]*)"?/g);
         for (const match of matches) {
             attributes[match[1]] = match[2];
         }
@@ -205,7 +319,7 @@ export function extractAttributes(
         // Extract only specified attributes
         attributesToExtract.forEach((attribute) => {
             const match = response.match(
-                new RegExp(`"${attribute}"\\s*:\\s*"([^"]*)"`, "i")
+                new RegExp(`"${attribute}"\\s*:\\s*"([^"]*)"?`, "i")
             );
             if (match) {
                 attributes[attribute] = match[1];
@@ -254,22 +368,6 @@ export const normalizeJsonString = (str: string) => {
     str = str.replace(/(?:"')|(?:'")/g, '"');
     return str;
 };
-
-/**
- * Cleans a JSON-like response string by removing unnecessary markers, line breaks, and extra whitespace.
- * This is useful for handling improperly formatted JSON responses from external sources.
- *
- * @param response - The raw JSON-like string response to clean.
- * @returns The cleaned string, ready for parsing or further processing.
- */
-
-export function cleanJsonResponse(response: string): string {
-    return response
-        .replace(/```json\s*/g, "") // Remove ```json
-        .replace(/```\s*/g, "") // Remove any remaining ```
-        .replace(/(\r\n|\n|\r)/g, "") // Remove line breaks
-        .trim();
-}
 
 export const postActionResponseFooter = `Choose any combination of [LIKE], [RETWEET], [QUOTE], and [REPLY] that are appropriate. Each action must be on its own line. Your response must only include the chosen actions.`;
 
@@ -341,3 +439,4 @@ export function truncateToCompleteSentence(
     const hardTruncated = text.slice(0, maxLength - 3).trim();
     return hardTruncated + "...";
 }
+

@@ -24,7 +24,7 @@ BEGIN
         RETURN 1536;  -- OpenAI dimension
     -- Then check for Ollama
     ELSIF current_setting('app.use_ollama_embedding', TRUE) = 'true' THEN
-        RETURN 1024;  -- Ollama mxbai-embed-large dimension
+        RETURN 1536;  -- Ollama mxbai-embed-large dimension
     -- Then check for GAIANET
     ELSIF current_setting('app.use_gaianet_embedding', TRUE) = 'true' THEN
         RETURN 768;  -- Gaianet nomic-embed dimension
