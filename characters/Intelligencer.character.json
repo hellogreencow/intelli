@@ -32,13 +32,13 @@
             "autoStart": false
         },
         "secrets": {
-            "OPENROUTER_API_KEY": "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",
-            "OPENAI_API_KEY": "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",
+            "OPENROUTER_API_KEY": "sk-or-v1-redacted",
+            "OPENAI_API_KEY": "sk-proj-redacted",
             "DISCORD_APPLICATION_ID": "1317233550441058315",
-            "DISCORD_API_TOKEN": "MTMxNzIzMzU1MDQ0MTA1ODMxNQ.GDTjN6.5FoZYLfyJvaO8WqBFKjb8E9QTOXpi8Vga9sdrk",
+            "DISCORD_API_TOKEN": "redacted",
             "POST_INTERVAL_MAX": "45",
             "POST_INTERVAL_MIN": "10",
-            "GOOGLE_GENERATIVE_AI_API_KEY": "AIzaSyA9IWdNZqxKDvZ6EPPLgglRtX8sx8iHX-A",
+            "GOOGLE_GENERATIVE_AI_API_KEY": "redacted-A",
             "model": "gpt-4o-mini-2024-07-18"
         },
         "continuationMode": true,
